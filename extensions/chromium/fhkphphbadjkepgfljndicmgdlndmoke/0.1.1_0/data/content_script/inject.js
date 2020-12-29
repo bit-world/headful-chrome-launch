@@ -57,6 +57,20 @@ var inject = function () {
     }
   });
   //
+  const measureText = CanvasRenderingContext2D.prototype.measureText;
+  Object.defineProperty(CanvasRenderingContext2D.prototype, "measureText", {
+    "value": function () {
+      const result = measureText.apply(this, arguments);
+      const width = result.width;
+      Object.defineProperty( result, 'width', {
+        get: function () {
+		  return width + rand.noise();
+        }
+      });
+      return result;
+    }
+  });
+  //
   document.documentElement.dataset.fbscriptallow = true;
 };
 
@@ -74,6 +88,9 @@ if (document.documentElement.dataset.fbscriptallow !== "true") {
           iframes[i].contentWindow.HTMLElement.prototype.offsetWidth = HTMLElement.prototype.offsetWidth;
           iframes[i].contentWindow.HTMLElement.prototype.offsetHeight = HTMLElement.prototype.offsetHeight;
         }
+		if (iframes[i].contentWindow.CanvasRenderingContext2D) {
+		  iframes[i].contentWindow.CanvasRenderingContext2D.prototype.measureText = CanvasRenderingContext2D.prototype.measureText;
+		}
       }
     }
   }`;
